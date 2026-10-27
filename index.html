@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="CodeOrbit Tech Internship Task 2 - A modern, responsive, and feature-rich To-Do List Web Application built with vanilla HTML5, CSS3, and JavaScript.">
+  <meta name="keywords" content="CodeOrbit, To-Do App, Task Manager, Frontend Development, JavaScript, LocalStorage">
+  <meta name="author" content="CodeOrbit Tech Intern">
+  <title>OrbitTask | CodeOrbit Tech Internship Task 2</title>
+
+  <!-- Google Fonts for Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Background Glow Accents -->
+  <div class="ambient-glow glow-1" aria-hidden="true"></div>
+  <div class="ambient-glow glow-2" aria-hidden="true"></div>
+
+  <!-- Notification Toast Container -->
+  <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <div class="app-wrapper">
+    <!-- Header Section -->
+    <header class="app-header">
+      <div class="header-badge">
+        <span class="badge-dot"></span>
+        <span>CodeOrbit Tech • Full Stack Internship (Task 2)</span>
+      </div>
+      <h1 class="app-title">Orbit<span class="accent-text">Task</span></h1>
+      <p class="app-subtitle">Streamlined personal task manager with persistent local storage</p>
+
+      <!-- Progress & Metrics Overview Card -->
+      <section class="metrics-card" aria-label="Task progress metrics">
+        <div class="metrics-header">
+          <div class="metrics-info">
+            <span class="metrics-label">Productivity Progress</span>
+            <span id="progressSummary" class="metrics-value">0 of 0 tasks completed</span>
+          </div>
+          <div id="progressPercent" class="metrics-percentage">0%</div>
+        </div>
+        <div class="progress-bar-track" role="progressbar" id="progressBar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Task completion progress">
+          <div id="progressBarFill" class="progress-bar-fill"></div>
+        </div>
+        <div class="metrics-stats">
+          <div class="stat-item">
+            <span class="stat-number" id="statTotal">0</span>
+            <span class="stat-title">Total Tasks</span>
+          </div>
+          <div class="stat-divider" aria-hidden="true"></div>
+          <div class="stat-item">
+            <span class="stat-number" id="statActive">0</span>
+            <span class="stat-title">Active</span>
+          </div>
+          <div class="stat-divider" aria-hidden="true"></div>
+          <div class="stat-item">
+            <span class="stat-number" id="statCompleted">0</span>
+            <span class="stat-title">Completed</span>
+          </div>
+        </div>
+      </section>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="app-main">
+      <!-- Task Creation Form -->
+      <section class="task-input-section" aria-label="Add new task">
+        <form id="taskForm" class="task-form" novalidate>
+          <div class="input-group">
+            <label for="taskInput" class="visually-hidden">Task Description</label>
+            <div class="input-wrapper">
+              <span class="input-icon" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="16"></line>
+                  <line x1="8" y1="12" x2="16" y2="12"></line>
+                </svg>
+              </span>
+              <input 
+                type="text" 
+                id="taskInput" 
+                class="task-input" 
+                placeholder="What would you like to accomplish today?" 
+                autocomplete="off"
+                maxlength="200"
+                aria-describedby="inputErrorMsg"
+              >
+              <button type="button" id="clearInputBtn" class="clear-input-btn" title="Clear input text" aria-label="Clear input text" style="display: none;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            <button type="submit" id="addTaskBtn" class="btn btn-primary add-task-btn">
+              <span class="btn-icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 12h14"></path>
+                  <path d="M12 5v14"></path>
+                </svg>
+              </span>
+              <span>Add Task</span>
+            </button>
+          </div>
+          <div id="inputErrorMsg" class="input-error-msg" role="alert" aria-live="assertive"></div>
+        </form>
+      </section>
+
+      <!-- Filter Tabs & Task Actions Toolbar -->
+      <section class="toolbar-section" aria-label="Task filters and actions">
+        <div class="filters-container" role="tablist" aria-label="Filter tasks">
+          <button type="button" role="tab" id="filterAll" class="filter-btn active" data-filter="all" aria-selected="true" aria-controls="taskList">
+            All Tasks <span class="filter-count" id="countAll">0</span>
+          </button>
+          <button type="button" role="tab" id="filterActive" class="filter-btn" data-filter="active" aria-selected="false" aria-controls="taskList">
+            Active <span class="filter-count" id="countActive">0</span>
+          </button>
+          <button type="button" role="tab" id="filterCompleted" class="filter-btn" data-filter="completed" aria-selected="false" aria-controls="taskList">
+            Completed <span class="filter-count" id="countCompleted">0</span>
+          </button>
+        </div>
+
+        <div class="toolbar-actions">
+          <!-- Search tasks within list -->
+          <div class="search-box">
+            <span class="search-icon" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </span>
+            <input type="text" id="searchInput" class="search-input" placeholder="Search tasks..." aria-label="Search tasks">
+          </div>
+
+          <button type="button" id="clearCompletedBtn" class="btn btn-secondary clear-completed-btn" title="Remove all completed tasks" disabled>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            <span>Clear Completed</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Task List Container -->
+      <section class="task-list-section" aria-label="Task list">
+        <ul id="taskList" class="task-list" role="list">
+          <!-- Dynamically populated via script.js -->
+        </ul>
+
+        <!-- Empty State Container -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+          <div class="empty-state-icon" id="emptyStateIcon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+              <path d="M9 16l2 2 4-4"></path>
+            </svg>
+          </div>
+          <h2 id="emptyStateTitle" class="empty-state-title">No tasks found</h2>
+          <p id="emptyStateDesc" class="empty-state-desc">You are all caught up! Use the input above to add a new task.</p>
+        </div>
+      </section>
+    </main>
+
+    <!-- Confirmation Modal Dialog -->
+    <dialog id="confirmModal" class="confirm-dialog" aria-labelledby="modalTitle" aria-describedby="modalDesc">
+      <div class="modal-card">
+        <div class="modal-icon warning" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </div>
+        <div class="modal-content">
+          <h3 id="modalTitle" class="modal-title">Delete Task?</h3>
+          <p id="modalDesc" class="modal-desc">Are you sure you want to delete this task? This action cannot be undone.</p>
+        </div>
+        <div class="modal-actions">
+          <button type="button" id="modalCancelBtn" class="btn btn-secondary modal-cancel-btn">Cancel</button>
+          <button type="button" id="modalConfirmBtn" class="btn btn-danger modal-confirm-btn">Delete</button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- App Footer -->
+    <footer class="app-footer">
+      <div class="footer-content">
+        <p>Built with Vanilla JavaScript & LocalStorage for <strong>CodeOrbit Tech Internship</strong></p>
+        <p class="footer-note">All data persists locally in your browser. No server or login required.</p>
+      </div>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
